@@ -31,12 +31,13 @@ router.get('/next', function (req, res) {
     });
 });
 
-router.put('/create', function (req, res) {
-    const dom = req.body.dom;
-    const ext = req.body.ext;
-    const arbitre = req.body.arbitre;
+router.post('/create', function (req, res) {
+    const home = req.body.home;
+    const away = req.body.away;
+    const referee = req.body.referee;
     const date = req.body.date;
-    Match.createMatch(dom, ext, arbitre, date, function(err,rows){
+    console.log(req.body);
+    Match.createMatch(home, away, referee, date, function(err,rows){
         if(err) {
             return res.status(400).send({
                 success: false,
@@ -49,15 +50,34 @@ router.put('/create', function (req, res) {
 });
 
 router.get('/info', function (req, res) {
-    Match.getArbitres(function(err,rows){
-        if(err) {
-            return res.status(400).send({
-                success: false,
-                message: 'DB connection failed'
-            });
-        }else {
-            return res.status(200).send(rows);
-        }
+    let Info = {teams: [], referees: []};
+
+    let promise = new Promise(function(resolve, reject) {
+        Match.getTeams(function(err,rows){
+            if(err) {
+                return res.status(400).send({
+                    success: false,
+                    message: 'DB connection failed'
+                });
+            }else {
+                Info.teams = rows;
+                resolve('ok');
+            }
+        });
+    });
+
+    promise.then(function() {
+        Match.getReferees(function(err,rows){
+            if(err) {
+                return res.status(400).send({
+                    success: false,
+                    message: 'DB connection failed'
+                });
+            }else {
+                Info.referees= rows;
+                return res.status(200).send(Info);
+            }
+        });
     });
 });
 
