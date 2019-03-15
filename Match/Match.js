@@ -1,16 +1,20 @@
 var db = require('../db');
 
 var Match = {
-    getMatches: function(callback) {
-        return db.query('SELECT id, dom.Nom as Dom, ButDom, ext.Nom as Ext, ButExt, DATE_FORMAT(Date, "%d/%m/%Y") as Date FROM `Match` INNER JOIN Equipe dom ON (EquipeDom = dom.idEquipe) INNER JOIN Equipe ext ON (EquipeExt = ext.idEquipe)', callback);
+    getTournaments: function(callback) {
+        return db.query('SELECT Nom FROM Tournoi', callback);
+    },
+
+    getMatches: function(idTournament, callback) {
+        return db.query('SELECT id, EquipeDom, ButDom, EquipeExt, ButExt, DATE_FORMAT(Date, "%d/%m/%Y") as Date FROM `Match` WHERE Tournoi = ?', [idTournament], callback);
     },
 
     getNextMatches: function (callback) {
-        return db.query('SELECT id, dom.Nom as Dom, ext.Nom as Ext, DATE_FORMAT(Date, "%d/%m/%Y") as Date FROM `Match` INNER JOIN Equipe dom ON (EquipeDom = dom.idEquipe) INNER JOIN Equipe ext ON (EquipeExt = ext.idEquipe) WHERE Etat = 0', callback);
+        return db.query('SELECT id, EquipeDom, EquipeExt, DATE_FORMAT(Date, "%d/%m/%Y") as Date FROM `Match` WHERE Etat = 0', callback);
     },
 
-    createMatch: function (home, away, referee, date, callback) {
-        return db.query('INSERT INTO `Match` (EquipeDom, EquipeExt, Arbitre, Date) VALUES (?, ?, ?, ?)', [home, away, referee, date], callback);
+    createMatch: function (home, away, referee, date, tournament, callback) {
+        return db.query('INSERT INTO `Match` (EquipeDom, EquipeExt, Arbitre, Etat, Date, Tournoi) VALUES (?, ?, ?, ?, ?, ?)', [home, away, referee, 0, date, tournament], callback);
     },
 
     getReferees: function (callback) {

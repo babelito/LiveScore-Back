@@ -5,8 +5,9 @@ var Match = require('./Match');
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
-router.get('/all', function (req, res) {
-    Match.getMatches(function(err,rows){
+router.get('/matches/:idTournament', function (req, res) {
+    const tournament = req.params.idTournament;
+    Match.getMatches(tournament, function(err,rows){
         if(err) {
             return res.status(400).send({
                 success: false,
@@ -31,13 +32,27 @@ router.get('/next', function (req, res) {
     });
 });
 
+router.get('/tournaments', function (req, res) {
+    Match.getTournaments(function(err,rows){
+        if(err) {
+            return res.status(400).send({
+                success: false,
+                message: 'DB connection failed'
+            });
+        }else {
+            return res.status(200).send(rows);
+        }
+    });
+});
+
 router.post('/create', function (req, res) {
     const home = req.body.home;
     const away = req.body.away;
     const referee = req.body.referee;
     const date = req.body.date;
+    const tournament = req.body.tournament;
     console.log(req.body);
-    Match.createMatch(home, away, referee, date, function(err,rows){
+    Match.createMatch(home, away, referee, date, tournament, function(err,rows){
         if(err) {
             return res.status(400).send({
                 success: false,
@@ -82,3 +97,4 @@ router.get('/info', function (req, res) {
 });
 
 module.exports = router;
+
