@@ -51,7 +51,6 @@ router.post('/create', function (req, res) {
     const referee = req.body.referee;
     const date = req.body.date;
     const tournament = req.body.tournament;
-    console.log(req.body);
     Match.createMatch(home, away, referee, date, tournament, function(err,rows){
         if(err) {
             return res.status(400).send({
@@ -93,6 +92,19 @@ router.get('/info', function (req, res) {
                 return res.status(200).send(Info);
             }
         });
+    });
+});
+
+router.get('/referees', function (req, res) {
+    Match.getReferees(function(err,rows){
+        if(err) {
+            return res.status(400).send({
+                success: false,
+                message: 'DB connection failed'
+            });
+        }else {
+            return res.status(200).send(rows);
+        }
     });
 });
 
